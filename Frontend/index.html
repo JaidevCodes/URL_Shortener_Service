@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkShrink | AWS Powered</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --accent: #22d3ee;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--card);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #334155;
+        }
+
+        h1 { margin: 0 0 0.5rem; font-size: 1.8rem; color: var(--accent); }
+        p { color: #94a3b8; margin-bottom: 2rem; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        input {
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2); }
+
+        button {
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(34, 211, 238, 0.1);
+            border: 1px dashed var(--accent);
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .short-url-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>LinkShrink</h1>
+    <p>Enter a long URL to generate a shortened link via AWS.</p>
+
+    <div class="form-group">
+        <input type="url" id="longUrl" placeholder="https://very-long-link.com/path/to/resource" required>
+        <button id="shrinkBtn">Shorten Link</button>
+    </div>
+
+    <div id="result">
+        <small style="color: var(--accent)">Your shortened link:</small>
+        <div class="short-url-flex">
+            <span id="shortUrlDisplay"></span>
+            <button class="copy-btn" onclick="copyLink()">Copy</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. SET YOUR AWS API GATEWAY URL HERE
+    const AWS_API_ENDPOINT = 'YOUR_API_GATEWAY_INVOKE_URL_HERE';
+
+    const shrinkBtn = document.getElementById('shrinkBtn');
+    const resultDiv = document.getElementById('result');
+    const display = document.getElementById('shortUrlDisplay');
+
+    shrinkBtn.addEventListener('click', async () => {
+        const longUrl = document.getElementById('longUrl').value;
+        
+        if (!longUrl) return alert("Please enter a URL");
+
+        shrinkBtn.disabled = true;
+        shrinkBtn.innerText = 'Processing...';
+
+        try {
+            // Integration with your Lambda via API Gateway
+            const response = await fetch(AWS_API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ long_url: longUrl })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Adjust 'data.short_url' based on your Lambda's response key
+                display.innerText = data.short_url || data.shortUrl;
+                resultDiv.style.display = 'block';
+            } else {
+                alert("Error: " + (data.message || "Something went wrong"));
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Connection to AWS failed. Check CORS settings.");
+        } finally {
+            shrinkBtn.disabled = false;
+            shrinkBtn.innerText = 'Shorten Link';
+        }
+    });
+
+    function copyLink() {
+        const text = display.innerText;
+        navigator.clipboard.writeText(text);
+        alert("Link copied to clipboard!");
+    }
+</script>
+
+</body>
+</html>
