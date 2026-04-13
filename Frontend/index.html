@@ -115,12 +115,10 @@
             <span id="shortUrlDisplay"></span>
             <button class="copy-btn" onclick="copyLink()">Copy</button>
         </div>
-    </div>
-</div>
-
+ 
 <script>
-    // 1. SET YOUR AWS API GATEWAY URL HERE
-    const AWS_API_ENDPOINT = 'YOUR_API_GATEWAY_INVOKE_URL_HERE';
+    
+    const AWS_API_ENDPOINT = 'https://dwjomo8ri9.execute-api.us-east-1.amazonaws.com/prod/shorten';
 
     const shrinkBtn = document.getElementById('shrinkBtn');
     const resultDiv = document.getElementById('result');
@@ -128,29 +126,33 @@
 
     shrinkBtn.addEventListener('click', async () => {
         const longUrl = document.getElementById('longUrl').value;
-        
+
         if (!longUrl) return alert("Please enter a URL");
 
         shrinkBtn.disabled = true;
         shrinkBtn.innerText = 'Processing...';
 
         try {
-            // Integration with your Lambda via API Gateway
             const response = await fetch(AWS_API_ENDPOINT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ long_url: longUrl })
+                body: JSON.stringify({ url: longUrl }) // ✅ FIXED
             });
 
             const data = await response.json();
 
-            if (response.ok) {
-                // Adjust 'data.short_url' based on your Lambda's response key
-                display.innerText = data.short_url || data.shortUrl;
+            if (response.ok && data.shortUrl) {
+
+                // ✅ Build full short link
+                const fullShortUrl = `https://dwjomo8ri9.execute-api.us-east-1.amazonaws.com/prod/${data.shortUrl}`;
+
+                display.innerHTML = `<a href="${fullShortUrl}" target="_blank">${fullShortUrl}</a>`;
                 resultDiv.style.display = 'block';
+
             } else {
-                alert("Error: " + (data.message || "Something went wrong"));
+                alert("Error: " + (data.message || JSON.stringify(data)));
             }
+
         } catch (err) {
             console.error(err);
             alert("Connection to AWS failed. Check CORS settings.");
