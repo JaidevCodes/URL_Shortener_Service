@@ -242,12 +242,6 @@ https://API_ID.execute-api.REGION.amazonaws.com/prod/{shortId}
 
 ---
 
-## 💼 Resume Description
-
-Built a serverless URL shortener using AWS Lambda, API Gateway, DynamoDB, and S3 with full frontend integration and REST API design.
-
----
-
 ## 🤝 Contributing
 
 Feel free to fork and deploy using your own AWS account.
