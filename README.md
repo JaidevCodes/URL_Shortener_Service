@@ -53,13 +53,16 @@ S3 (Frontend) → API Gateway → Lambda → DynamoDB
 URL_Shortener_Service/
 │
 ├── Frontend/
-│   └── index.html
+│   ├── index.html          # UI for URL shortening
+│   └── policy.json         # S3 bucket public access policy
 │
-├── lambda_function.py
+├── Backend/
+│   ├── lambda_function.py  # AWS Lambda logic (Python)
+│   ├── lambda-trust.json   # IAM role trust policy
+│   └── function.zip        # Deployment package (generated)
+│
 ├── README.md
 ```
-
----
 
 ## ⚙️ Prerequisites
 
