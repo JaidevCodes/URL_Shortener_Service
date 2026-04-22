@@ -5,9 +5,9 @@ Users can enter a long URL and get a shortened link that redirects to the origin
 
 ---
 
-## 🚀 Live Architecture
+## 🚀 Architecture
 
-S3 (Frontend) → API Gateway → Lambda → DynamoDB
+![Architecture Diagram](architecture.png)
 
 ---
 
